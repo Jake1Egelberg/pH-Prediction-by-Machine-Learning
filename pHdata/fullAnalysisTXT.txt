@@ -1,11 +1,12 @@
 #Load packages for CART
 library(rpart) 
 library(rpart.plot) 
-library(rattle) 
-library(Metrics)
 
 #Load packages for RF
 library(randomForest) 
+
+#Load packages for stats
+library(rattle) 
 library(Metrics)
 
 #Set working directory to hard drive
