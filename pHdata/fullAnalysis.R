@@ -30,7 +30,7 @@ test_set<-data[-train,] #matrix of 30% rows w/ columns
 
 #-------------USER INPUTS-------------
 
-dependent.variable <- as.name('ï..pH')
+dependent.variable <- as.name('Ã¯..pH')
 CARTmethod <- "anova" 
 RFmethod <- "anova" 
 
@@ -39,7 +39,7 @@ RFmethod <- "anova"
 #-------------MODEL GENERATION-------------
 
 #Build CART model 
-CARTmodel <- rpart(ï..pH ~., data=training_set, method=CARTmethod, xval=10, minsplit=20) 
+CARTmodel <- rpart(Ã¯..pH ~., data=training_set, method=CARTmethod, xval=10, minsplit=20) 
 
 #Prune CART model 
 CARTmodel<- prune(CARTmodel, cp=CARTmodel$cptable[which.min(CARTmodel$cptable[,"xerror"]),"CP"]) 
@@ -49,7 +49,7 @@ observations2 <- nrow(training_set)
 max.nodes <- round(observations2*0.3,0)
 
 #Build RF 
-RFmodel <- randomForest(ï..pH ~.,data=training_set, ntree=1000,importance=TRUE,nodesize=1,maxnodes=max.nodes) #INPUT
+RFmodel <- randomForest(Ã¯..pH ~.,data=training_set, ntree=1000,importance=TRUE,nodesize=1,maxnodes=max.nodes) #INPUT
 
 
 #Visualize CART Model as .tiff with high res 
@@ -117,14 +117,18 @@ if(RFmethod=="anova"){
 RFimp<-RFmodel$importance
 
 #-------------Correlations to pH-------------
-corM <- matrix(nrow=11,ncol=2)
-colnames(corM)<-c("r","p-value")
+corM <- matrix(nrow=11,ncol=4)
+colnames(corM)<-c("r","% r^(2)","p-value","Adjusted p-value")
 rownames(corM)<-c(names(data))
 
 for(i in 1:11){
-  cor <- cor.test(data[,1],data[,i])
-  corM[i,1]<-cor$estimate
-  corM[i,2]<-cor$p.value
+  cor <- cor.test(data[,1],data[,i],method="spearman")
+  adjustedP<-p.adjust(cor$p.value,method="bonferroni",n=10) #10 associations b/w variables and pH
+  
+  corM[i,1]<-round(cor$estimate,digits=4)
+  corM[i,2]<-round(100*cor$estimate*cor$estimate,digits=4)
+  corM[i,3]<-round(cor$p.value,digits=4)
+  corM[i,4]<-round(adjustedP,digits=4)
 }
 
 #-------------T tests-------------
@@ -149,5 +153,3 @@ CARTimp
 RFimp
 CARTRRMSEmatrix
 RFRRMSEmatrix
-
-
