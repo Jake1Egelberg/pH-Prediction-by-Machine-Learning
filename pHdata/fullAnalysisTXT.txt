@@ -117,8 +117,8 @@ if(RFmethod=="anova"){
 RFimp<-RFmodel$importance
 
 #-------------Correlations to pH-------------
-corM <- matrix(nrow=11,ncol=4)
-colnames(corM)<-c("r","% r^(2)","p-value","Adjusted p-value")
+corM <- matrix(nrow=11,ncol=3)
+colnames(corM)<-c("rho","p-value","Adjusted p-value")
 rownames(corM)<-c(names(data))
 
 for(i in 1:11){
@@ -126,9 +126,8 @@ for(i in 1:11){
   adjustedP<-p.adjust(cor$p.value,method="bonferroni",n=10) #10 associations b/w variables and pH
   
   corM[i,1]<-round(cor$estimate,digits=4)
-  corM[i,2]<-round(100*cor$estimate*cor$estimate,digits=4)
-  corM[i,3]<-round(cor$p.value,digits=4)
-  corM[i,4]<-round(adjustedP,digits=4)
+  corM[i,2]<-round(cor$p.value,digits=4)
+  corM[i,3]<-round(adjustedP,digits=4)
 }
 
 #-------------T tests-------------
