@@ -132,19 +132,24 @@ for(i in 1:11){
 }
 
 #-------------T tests-------------
-tM <- matrix(nrow=3,ncol=1)
-rownames(tM)<-c("CART pH v.s. Real pH","RF pH v.s. Real pH", "CART pH v.s. RF pH")
+tM <- matrix(nrow=4,ncol=1)
+rownames(tM)<-c("CART pH v.s. Real pH","RF pH v.s. Real pH", "CART pH v.s. RF pH","Zhang pH v.s. Real pH")
 colnames(tM)<-c("p-value")
 
 #CART pH v.s. actual pH
-CARTpred<-t.test(CARTpredictions,test_setActual,alternative="two.sided")
-tM[1,1]<-CARTpred$p.value
+CARTpred<-wilcox.test(CARTpredictions,test_setActual,alternative="two.sided")
+tM[1,1]<-round(CARTpred$p.value,digits=4)
 #RF pH v.s. actual pH
-RFpred<-t.test(RFpredictions,test_setActual,alternative="two.sided")
-tM[2,1]<-RFpred$p.value
+RFpred<-wilcox.test(RFpredictions,test_setActual,alternative="two.sided")
+tM[2,1]<-round(RFpred$p.value,digits=4)
 #CART pH v.s. RF pH
-comparison<-t.test(CARTpredictions,RFpredictions,alternative="two.sided")
-tM[3,1]<-comparison$p.value
+comparison<-wilcox.test(CARTpredictions,RFpredictions,alternative="two.sided")
+tM[3,1]<-round(comparison$p.value,digits=4)
+#Zhang pH v.s. Real pH
+ZhangpH<-vector(length=30)
+ZhangpH[1:30]<-5.43
+Zhangpred<-wilcox.test(ZhangpH,test_setActual,alternative="two.sided")
+tM[4,1]<-round(Zhangpred$p.value,digits=4)
 
 #-------------Print outputs-------------
 corM
