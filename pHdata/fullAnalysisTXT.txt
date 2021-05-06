@@ -8,6 +8,7 @@ library(randomForest)
 #Load packages for stats
 library(rattle) 
 library(Metrics)
+library(car)
 
 #Set working directory to hard drive
 setwd("D:\\pHdata\\Outputs")
@@ -130,25 +131,46 @@ for(i in 1:11){
   corM[i,3]<-round(adjustedP,digits=4)
 }
 
-#-------------T tests-------------
-tM <- matrix(nrow=4,ncol=1)
-rownames(tM)<-c("CART pH v.s. Real pH","RF pH v.s. Real pH", "CART pH v.s. RF pH","Zhang pH v.s. Real pH")
-colnames(tM)<-c("p-value")
-
-#CART pH v.s. actual pH
-CARTpred<-wilcox.test(CARTpredictions,test_setActual,alternative="two.sided")
-tM[1,1]<-round(CARTpred$p.value,digits=4)
-#RF pH v.s. actual pH
-RFpred<-wilcox.test(RFpredictions,test_setActual,alternative="two.sided")
-tM[2,1]<-round(RFpred$p.value,digits=4)
-#CART pH v.s. RF pH
-comparison<-wilcox.test(CARTpredictions,RFpredictions,alternative="two.sided")
-tM[3,1]<-round(comparison$p.value,digits=4)
-#Zhang pH v.s. Real pH
+#Generating Zhang pH predictions
 ZhangpH<-vector(length=30)
 ZhangpH[1:30]<-5.43
-Zhangpred<-wilcox.test(ZhangpH,test_setActual,alternative="two.sided")
-tM[4,1]<-round(Zhangpred$p.value,digits=4)
+
+#-------------Stat tests-------------
+tM <- matrix(nrow=4,ncol=2)
+rownames(tM)<-c("CART pH v.s. Real pH","RF pH v.s. Real pH", "CART pH v.s. RF pH","Zhang pH v.s. Real pH")
+colnames(tM)<-c("Levene's Test p-value","Welch's t-test p-value")
+
+#CART pH v.s. actual pH
+CARTpred<-t.test(CARTpredictions,test_setActual,alternative="two.sided",var.equal = FALSE)
+tM[1,2]<-round(CARTpred$p.value,digits=4)
+
+CARTpredFactor<-as.factor(CARTpredictions)
+CARTlev<-leveneTest(test_setActual~CARTpredFactor)
+tM[1,1]<-round(CARTlev$`Pr(>F)`[1],digits=4)
+
+#RF pH v.s. actual pH
+RFpred<-t.test(RFpredictions,test_setActual,alternative="two.sided",var.equal = FALSE)
+tM[2,2]<-round(RFpred$p.value,digits=4)
+
+RFpredFactor<-as.factor(RFpredictions)
+RFlev<-leveneTest(test_setActual~RFpredFactor)
+tM[2,1]<-round(RFlev$`Pr(>F)`[1],digits=4)
+
+#CART pH v.s. RF pH
+comparison<-t.test(CARTpredictions,RFpredictions,alternative="two.sided",var.equal = FALSE)
+tM[3,2]<-round(comparison$p.value,digits=4)
+
+complev<-leveneTest(RFpredictions~CARTpredFactor)
+tM[3,1]<-round(complev$`Pr(>F)`[1],digits=4)
+
+#Zhang pH v.s. Real pH
+Zhangpred<-t.test(ZhangpH,test_setActual,alternative="two.sided",var.equal = FALSE)
+tM[4,2]<-round(Zhangpred$p.value,digits=4)
+
+#ZhangPredFactor<-as.factor(ZhangpH)
+#Zhanglev<-leveneTest(test_setActual~ZhangPredFactor)
+#tM[4,1]<-round(Zhanglev$`Pr(>F)`[1],digits=4)
+
 
 #-------------Print outputs-------------
 corM
@@ -157,3 +179,5 @@ CARTimp
 RFimp
 CARTRRMSEmatrix
 RFRRMSEmatrix
+
+
