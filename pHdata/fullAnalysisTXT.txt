@@ -22,7 +22,7 @@ set.seed(the_seed)
 #Set data source
 data <- read.csv("D:\\pHdata\\SamplingLocationData.csv")
 
-#Split data into 70% testing and 30% training sets 
+#Split data into 30% testing and 70% training sets 
 #train takes random sample of number of rows from data 
 train<-sample(1:nrow(data),size=ceiling(0.7*nrow(data)),replace=FALSE)  
 #sets training and test sets to matrices containing only rows sampled by train  
